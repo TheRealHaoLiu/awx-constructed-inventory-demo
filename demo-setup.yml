@@ -1,0 +1,46 @@
+# an ansible playbook that setup a demo project on awx
+- name: Setup demo project
+  hosts: localhost
+  tasks:
+    - name: Create a demo project
+      awx.awx.project:
+        name: Constructed Inventory Demo Project
+        organization: Default
+        scm_type: git
+        scm_url: https://github.com/AlanCoding/Ansible-inventory-file-examples.git
+        state: present
+    - name: Create demo inventory "west"
+      awx.awx.inventory:
+        name: West
+        organization: Default
+        state: present
+    - name: Add inventory source to demo inventory "west"
+      awx.awx.inventory_source:
+        name: West
+        inventory: West
+        source: scm
+        source_project: Constructed Inventory Demo Project
+        source_path: issues/AWX371/west.ini
+        state: present
+    - name: Create demo inventory "east"
+      awx.awx.inventory:
+        name: East
+        organization: Default
+        state: present
+    - name: Add inventory source from to demo inventory "east"
+      awx.awx.inventory_source:
+        name: East
+        inventory: East
+        source: scm
+        source_project: Constructed Inventory Demo Project
+        source_path: issues/AWX371/east.ini
+        state: present
+    - name: Create demo constructed inventory "east-west-constructed"
+      awx.awx.inventory:
+        name: East-West
+        organization: Default
+        state: present
+        kind: constructed
+        input_inventories:
+          - East
+          - West
