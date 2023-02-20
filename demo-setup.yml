@@ -22,6 +22,10 @@
         source_project: Constructed Inventory Demo Project
         source_path: issues/AWX371/west.ini
         state: present
+    - name: Update inventory source "west"
+      awx.awx.inventory_source_update:
+        name: West
+        inventory: West
     - name: Create demo inventory "east"
       awx.awx.inventory:
         name: East
@@ -35,6 +39,10 @@
         source_project: Constructed Inventory Demo Project
         source_path: issues/AWX371/east.ini
         state: present
+    - name: Update demo inventory source "east"
+      awx.awx.inventory_source_update:
+        name: East
+        inventory: East
     - name: Create demo constructed inventory "east-west-constructed"
       awx.awx.inventory:
         name: East-West
@@ -44,3 +52,10 @@
         input_inventories:
           - East
           - West
+        limit: "state: shutdown"
+      register: constructed_inventory
+    - name: Update all inventory sources
+      awx.awx.inventory_source_update:
+        name: "{{ item }}"
+        inventory: East-West
+      loop: "{{ query('awx.awx.controller_api', 'inventory_sources', query_params={'inventory': constructed_inventory.id}, return_ids=True) }}"
